@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Семейные медкарты</title>
+    <!-- Иконки -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f3f4f8;
+            color: #222;
+            transition: background 0.3s ease;
+        }
+        header {
+            background: linear-gradient(120deg, #4c6fff, #9b7bff);
+            color: white;
+            padding: 16px 28px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        h1 {
+            margin: 0 0 4px;
+            font-size: 22px;
+        }
+        .subtitle {
+            margin: 0;
+            font-size: 13px;
+            color: rgba(255,255,255,0.85);
+        }
+        main {
+            max-width: 1200px;
+            margin: 24px auto 40px;
+            padding: 0 16px;
+        }
+        .layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 16px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 14px 16px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+            margin-bottom: 14px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
+        }
+        h2 {
+            margin: 0 0 10px;
+            font-size: 18px;
+        }
+        h2 i {
+            margin-right: 6px;
+            color: #4c6fff;
+        }
+        h3 {
+            margin: 0 0 8px;
+            font-size: 15px;
+        }
+        label {
+            font-size: 13px;
+            color: #555;
+        }
+        input, select, textarea, button {
+            font-family: inherit;
+            font-size: 13px;
+        }
+        input, select, textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 6px 8px;
+            margin-top: 2px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 50px;
+        }
+        button {
+            padding: 7px 12px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            margin-right: 6px;
+            margin-top: 4px;
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .btn-primary {
+            background: #0077ff;
+            color: white;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background: #005fd1;
+        }
+        .btn-secondary {
+            background: #eee;
+        }
+        .btn-danger {
+            background: #ff4d4f;
+            color: white;
+        }
+        .small {
+            font-size: 12px;
+            color: #777;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        th, td {
+            border-bottom: 1px solid #eee;
+            padding: 4px 3px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background: #fafafa;
+        }
+        .avatar-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        #memberAvatar {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            object-fit: cover;
+            object-position: 50% 50%;
+            border: 2px solid #ddd;
+            display: none;
+        }
+        .range-row {
+            display: flex;
+            gap: 8px;
+        }
+        .range-row > div {
+            flex: 1;
+        }
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Семейные медкарты</h1>
+    <p class="subtitle">Личное хранилище: члены семьи, их медкарты, анализы, болезни. Данные только в этом браузере.</p>
+</header>
+
+<main>
+    <div class="layout">
+        <!-- ЛЕВАЯ КОЛОНКА: пользователи -->
+        <aside>
+            <div class="card">
+                <h2><i class="fa-solid fa-users"></i> Члены семьи</h2>
+                <label for="memberSelect">Выбранный человек:</label>
+                <select id="memberSelect"></select>
+
+                <!-- Круглое фото выбранного -->
+                <div class="avatar-wrapper">
+                    <img id="memberAvatar" src="" alt="Фото">
+                </div>
+
+                <label for="memberPhotoInput">Фото выбранного человека</label>
+                <input type="file" id="memberPhotoInput" accept="image/*">
+
+                <div class="range-row">
+                    <div>
+                        <label for="avatarX">Сдвиг по горизонтали</label>
+                        <input type="range" id="avatarX" min="0" max="100" value="50">
+                    </div>
+                    <div>
+                        <label for="avatarY">Сдвиг по вертикали</label>
+                        <input type="range" id="avatarY" min="0" max="100" value="50">
+                    </div>
+                </div>
+
+                <button id="saveMemberPhotoBtn" class="btn-primary" type="button">Сохранить фото</button>
+
+                <label for="newMemberName" style="margin-top:10px; display:block;">Добавить нового:</label>
+                <input id="newMemberName" type="text" placeholder="Например: Вика, Хусейн, Бабушка Аня">
+
+                <button type="button" id="addMemberBtn" class="btn-primary">Добавить</button>
+                <button type="button" id="deleteMemberBtn" class="btn-danger">Удалить выбранного</button>
+
+                <p class="small">
+                    ➜ Добавляй людей сюда. При удалении человека удалится и вся его медкарта.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3>Подсказка по разделам</h3>
+                <ul class="small">
+                    <li><b>Профиль</b> — дата рождения, рост, вес.</li>
+                    <li><b>Врачи</b> — визиты, диагноз, рекомендации.</li>
+                    <li><b>Анализы</b> — что сдавал, результаты, выводы, фото бланков.</li>
+                    <li><b>Болезни</b> — чем болел, как лечили и чем.</li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- ПРАВАЯ КОЛОНКА: медкарта выбранного -->
+        <section>
+            <!-- если нет людей -->
+            <div class="card" id="noMemberCard" style="display:none;">
+                <h2>Сначала добавь члена семьи</h2>
+                <p class="small">
+                    В левой колонке впиши имя и нажми «Добавить».  
+                    Потом выбери его в списке — откроется его медкарта.
+                </p>
+            </div>
+
+            <div id="cardContent" style="display:none;">
+                <!-- ПРОФИЛЬ -->
+                <div class="card">
+                    <h2><i class="fa-solid fa-id-card"></i> Профиль</h2>
+                    <form id="profileForm">
+                        <label for="birthDate">Дата рождения</label>
+                        <input type="date" id="birthDate">
+
+                        <label for="height">Рост (см)</label>
+                        <input type="number" id="height" placeholder="например, 110">
+
+                        <label for="weight">Вес (кг)</label>
+                        <input type="number" step="0.1" id="weight" placeholder="например, 18.5">
+
+                        <button type="submit" class="btn-primary">Сохранить профиль</button>
+                        <span class="small" id="profileSavedMsg" style="margin-left:6px;"></span>
+                    </form>
+                </div>
+
+                <!-- ВИЗИТЫ К ВРАЧАМ -->
+                <div class="card">
+                    <h2><i class="fa-solid fa-stethoscope"></i> Визиты к врачам</h2>
+                    <form id="visitForm">
+                        <label for="visitDate">Дата визита</label>
+                        <input type="date" id="visitDate">
+
+                        <label for="visitDoctor">Врач / специальность</label>
+                        <input type="text" id="visitDoctor" placeholder="Например: педиатр, невролог">
+
+                        <label for="visitReason">Повод / жалобы</label>
+                        <input type="text" id="visitReason" placeholder="Температура, кашель, плановый осмотр">
+
+                        <label for="visitNotes">Диагноз и рекомендации</label>
+                        <textarea id="visitNotes" placeholder="Кратко: диагноз, чем лечить, когда на повторный приём"></textarea>
+
+                        <button type="submit" class="btn-primary">Добавить визит</button>
+                    </form>
+
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Дата</th>
+                            <th>Врач</th>
+                            <th>Повод</th>
+                            <th>Диагноз / рекомендации</th>
+                        </tr>
+                        </thead>
+                        <tbody id="visitsBody"></tbody>
+                    </table>
+                    <p class="small" id="visitsEmpty"></p>
+                </div>
+
+                <!-- АНАЛИЗЫ -->
+                <div class="card">
+                    <h2><i class="fa-solid fa-vial"></i> Анализы</h2>
+                    <form id="testForm">
+                        <label for="testDate">Дата анализа</label>
+                        <input type="date" id="testDate">
+
+                        <label for="testType">Тип анализа</label>
+                        <input type="text" id="testType" placeholder="ОАК, биохимия, моча и т.д.">
+
+                        <label for="testResult">Результаты</label>
+                        <textarea id="testResult" placeholder="Основные показатели: что важно, что в норме/не в норме"></textarea>
+
+                        <label for="testNotes">Выводы врача / что делать</label>
+                        <textarea id="testNotes" placeholder="Нужно ли лечение, повтор, наблюдение"></textarea>
+
+                        <label for="testImage">Фото анализа (необязательно)</label>
+                        <input type="file" id="testImage" accept="image/*">
+
+                        <p class="small">
+                            Фото будет сохраняться вместе с записью.  
+                            Лучше использовать не слишком тяжёлые снимки (до ~2 МБ), иначе браузеру может не хватить памяти.
+                        </p>
+
+                        <button type="submit" class="btn-primary">Добавить анализ</button>
+                    </form>
+
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Дата</th>
+                            <th>Тип</th>
+                            <th>Результат</th>
+                            <th>Рекомендации</th>
+                            <th>Фото</th>
+                        </tr>
+                        </thead>
+                        <tbody id="testsBody"></tbody>
+                    </table>
+                    <p class="small" id="testsEmpty"></p>
+                </div>
+
+                <!-- БОЛЕЗНИ -->
+                <div class="card">
+                    <h2><i class="fa-solid fa-virus"></i> Болезни</h2>
+                    <form id="illForm">
+                        <label for="illStart">Начало болезни</label>
+                        <input type="date" id="illStart">
+
+                        <label for="illEnd">Окончание (если известно)</label>
+                        <input type="date" id="illEnd">
+
+                        <label for="illName">Диагноз / болезнь</label>
+                        <input type="text" id="illName" placeholder="ОРВИ, бронхит, отит и т.д.">
+
+                        <label for="illTreat">Чем лечили</label>
+                        <textarea id="illTreat" placeholder="Препараты, дозировки, другие методы лечения"></textarea>
+
+                        <label for="illNotes">Примечания</label>
+                        <textarea id="illNotes" placeholder="Как протекала болезнь, реакции на лекарства и т.п."></textarea>
+
+                        <button type="submit" class="btn-primary">Добавить болезнь</button>
+                    </form>
+
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Начало</th>
+                            <th>Конец</th>
+                            <th>Диагноз</th>
+                            <th>Лечение / примечания</th>
+                        </tr>
+                        </thead>
+                        <tbody id="illsBody"></tbody>
+                    </table>
+                    <p class="small" id="illsEmpty"></p>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<script>
+    // Структура данных:
+    // {
+    //   members: [],
+    //   profiles: { name: {birthDate,height,weight} },
+    //   visits: { name: [ ... ] },
+    //   tests: { name: [ {date,type,result,notes,imageData}, ... ] },
+    //   ills: { name: [ ... ] },
+    //   profilePhotos: { name: imageDataUrl },
+    //   profilePhotoPosition: { name: { x: %, y: % } }
+    // }
+
+    const STORAGE_KEY = "familyHealth_full_v2";
+
+    let data = {
+        members: [],
+        profiles: {},
+        visits: {},
+        tests: {},
+        ills: {},
+        profilePhotos: {},
+        profilePhotoPosition: {}
+    };
+
+    const memberSelect = document.getElementById("memberSelect");
+    const newMemberNameInput = document.getElementById("newMemberName");
+    const addMemberBtn = document.getElementById("addMemberBtn");
+    const deleteMemberBtn = document.getElementById("deleteMemberBtn");
+
+    const memberPhotoInput = document.getElementById("memberPhotoInput");
+    const saveMemberPhotoBtn = document.getElementById("saveMemberPhotoBtn");
+    const memberAvatar = document.getElementById("memberAvatar");
+    const avatarXInput = document.getElementById("avatarX");
+    const avatarYInput = document.getElementById("avatarY");
+
+    const noMemberCard = document.getElementById("noMemberCard");
+    const cardContent = document.getElementById("cardContent");
+
+    // Профиль
+    const profileForm = document.getElementById("profileForm");
+    const birthDateInput = document.getElementById("birthDate");
+    const heightInput = document.getElementById("height");
+    const weightInput = document.getElementById("weight");
+    const profileSavedMsg = document.getElementById("profileSavedMsg");
+
+    // Врачи
+    const visitForm = document.getElementById("visitForm");
+    const visitDateInput = document.getElementById("visitDate");
+    const visitDoctorInput = document.getElementById("visitDoctor");
+    const visitReasonInput = document.getElementById("visitReason");
+    const visitNotesInput = document.getElementById("visitNotes");
+    const visitsBody = document.getElementById("visitsBody");
+    const visitsEmpty = document.getElementById("visitsEmpty");
+
+    // Анализы
+    const testForm = document.getElementById("testForm");
+    const testDateInput = document.getElementById("testDate");
+    const testTypeInput = document.getElementById("testType");
+    const testResultInput = document.getElementById("testResult");
+    const testNotesInput = document.getElementById("testNotes");
+    const testImageInput = document.getElementById("testImage");
+    const testsBody = document.getElementById("testsBody");
+    const testsEmpty = document.getElementById("testsEmpty");
+
+    // Болезни
+    const illForm = document.getElementById("illForm");
+    const illStartInput = document.getElementById("illStart");
+    const illEndInput = document.getElementById("illEnd");
+    const illNameInput = document.getElementById("illName");
+    const illTreatInput = document.getElementById("illTreat");
+    const illNotesInput = document.getElementById("illNotes");
+    const illsBody = document.getElementById("illsBody");
+    const illsEmpty = document.getElementById("illsEmpty");
+
+    function loadData() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (parsed && typeof parsed === "object") {
+                    data = Object.assign(data, parsed);
+                }
+            } catch (e) {
+                console.warn("Ошибка чтения сохранённых данных", e);
+            }
+        }
+    }
+
+    function saveData() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch (e) {
+            alert("Не удалось сохранить данные: браузеру не хватило памяти. Попробуй удалить часть фото или записей.");
+            console.error(e);
+        }
+    }
+
+    function getCurrentMember() {
+        return memberSelect.value || "";
+    }
+
+    function updateLayoutVisibility() {
+        if (!data.members || data.members.length === 0) {
+            noMemberCard.style.display = "block";
+            cardContent.style.display = "none";
+        } else {
+            noMemberCard.style.display = "none";
+            cardContent.style.display = "block";
+        }
+    }
+
+    function renderMembers() {
+        memberSelect.innerHTML = "";
+        if (!data.members || data.members.length === 0) {
+            const opt = document.createElement("option");
+            opt.value = "";
+            opt.textContent = "Нет добавленных людей";
+            memberSelect.appendChild(opt);
+            memberSelect.disabled = true;
+        } else {
+            memberSelect.disabled = false;
+            data.members.forEach(name => {
+                const opt = document.createElement("option");
+                opt.value = name;
+                opt.textContent = name;
+                memberSelect.appendChild(opt);
+            });
+        }
+        updateLayoutVisibility();
+    }
+
+    function renderProfile() {
+        const member = getCurrentMember();
+        if (!member) {
+            birthDateInput.value = "";
+            heightInput.value = "";
+            weightInput.value = "";
+            profileSavedMsg.textContent = "";
+            return;
+        }
+        const profile = data.profiles[member] || {};
+        birthDateInput.value = profile.birthDate || "";
+        heightInput.value = profile.height || "";
+        weightInput.value = profile.weight || "";
+        profileSavedMsg.textContent = "";
+    }
+
+    function renderVisits() {
+        const member = getCurrentMember();
+        visitsBody.innerHTML = "";
+        const list = (data.visits[member] || []).slice().sort((a,b) => (a.date || "").localeCompare(b.date || ""));
+        if (list.length === 0) {
+            visitsEmpty.textContent = "Нет записей о визитах к врачам.";
+            return;
+        }
+        visitsEmpty.textContent = "";
+        list.forEach(v => {
+            const tr = document.createElement("tr");
+            const td1 = document.createElement("td");
+            const td2 = document.createElement("td");
+            const td3 = document.createElement("td");
+            const td4 = document.createElement("td");
+            td1.textContent = v.date || "";
+            td2.textContent = v.doctor || "";
+            td3.textContent = v.reason || "";
+            td4.textContent = v.notes || "";
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            tr.appendChild(td3);
+            tr.appendChild(td4);
+            visitsBody.appendChild(tr);
+        });
+    }
+
+    function renderTests() {
+        const member = getCurrentMember();
+        testsBody.innerHTML = "";
+        const list = (data.tests[member] || []).slice().sort((a,b) => (a.date || "").localeCompare(b.date || ""));
+        if (list.length === 0) {
+            testsEmpty.textContent = "Нет записей об анализах.";
+            return;
+        }
+        testsEmpty.textContent = "";
+        list.forEach(t => {
+            const tr = document.createElement("tr");
+            const td1 = document.createElement("td");
+            const td2 = document.createElement("td");
+            const td3 = document.createElement("td");
+            const td4 = document.createElement("td");
+            const td5 = document.createElement("td");
+
+            td1.textContent = t.date || "";
+            td2.textContent = t.type || "";
+            td3.textContent = t.result || "";
+            td4.textContent = t.notes || "";
+
+            if (t.imageData) {
+                const link = document.createElement("a");
+                link.href = t.imageData;
+                link.textContent = "Фото";
+                link.target = "_blank";
+                td5.appendChild(link);
+            } else {
+                td5.textContent = "";
+            }
+
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            tr.appendChild(td3);
+            tr.appendChild(td4);
+            tr.appendChild(td5);
+            testsBody.appendChild(tr);
+        });
+    }
+
+    function renderIlls() {
+        const member = getCurrentMember();
+        illsBody.innerHTML = "";
+        const list = (data.ills[member] || []).slice().sort((a,b) => (a.start || "").localeCompare(b.start || ""));
+        if (list.length === 0) {
+            illsEmpty.textContent = "Нет записей о болезнях.";
+            return;
+        }
+        illsEmpty.textContent = "";
+        list.forEach(i => {
+            const tr = document.createElement("tr");
+            const td1 = document.createElement("td");
+            const td2 = document.createElement("td");
+            const td3 = document.createElement("td");
+            const td4 = document.createElement("td");
+            td1.textContent = i.start || "";
+            td2.textContent = i.end || "";
+            td3.textContent = i.name || "";
+            td4.textContent = (i.treat || "") + (i.notes ? ("; " + i.notes) : "");
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            tr.appendChild(td3);
+            tr.appendChild(td4);
+            illsBody.appendChild(tr);
+        });
+    }
+
+    function renderMemberPhoto() {
+        const member = getCurrentMember();
+        const photo = data.profilePhotos?.[member];
+        const pos = data.profilePhotoPosition?.[member] || { x: 50, y: 50 };
+
+        avatarXInput.value = pos.x;
+        avatarYInput.value = pos.y;
+
+        if (photo) {
+            memberAvatar.src = photo;
+            memberAvatar.style.display = "block";
+            memberAvatar.style.objectPosition = pos.x + "% " + pos.y + "%";
+        } else {
+            memberAvatar.style.display = "none";
+        }
+    }
+
+    function renderAllForCurrent() {
+        renderProfile();
+        renderVisits();
+        renderTests();
+        renderIlls();
+        renderMemberPhoto();
+    }
+
+    // === События ===
+
+    // Добавление нового члена семьи
+    addMemberBtn.addEventListener("click", () => {
+        const name = newMemberNameInput.value.trim();
+        if (!name) {
+            alert("Напиши имя нового члена семьи.");
+            return;
+        }
+        if (!data.members) data.members = [];
+        if (data.members.includes(name)) {
+            alert("Такой человек уже есть в списке.");
+            return;
+        }
+        data.members.push(name);
+        if (!data.profiles[name]) data.profiles[name] = {};
+        if (!data.visits[name]) data.visits[name] = [];
+        if (!data.tests[name]) data.tests[name] = [];
+        if (!data.ills[name]) data.ills[name] = [];
+        saveData();
+        newMemberNameInput.value = "";
+        renderMembers();
+        memberSelect.value = name;
+        renderAllForCurrent();
+    });
+
+    // Удаление члена семьи
+    deleteMemberBtn.addEventListener("click", () => {
+        const member = getCurrentMember();
+        if (!member) {
+            alert("Нечего удалять.");
+            return;
+        }
+        const ok = confirm("Удалить «" + member + "» и всю его медкарту?");
+        if (!ok) return;
+
+        data.members = data.members.filter(m => m !== member);
+        delete data.profiles[member];
+        delete data.visits[member];
+        delete data.tests[member];
+        delete data.ills[member];
+        delete data.profilePhotos[member];
+        delete data.profilePhotoPosition[member];
+        saveData();
+        renderMembers();
+        if (data.members.length > 0) {
+            memberSelect.value = data.members[0];
+        }
+        renderAllForCurrent();
+    });
+
+    // Смена выбранного пользователя
+    memberSelect.addEventListener("change", () => {
+        renderAllForCurrent();
+    });
+
+    // Сохранение профиля
+    profileForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const member = getCurrentMember();
+        if (!member) return;
+        if (!data.profiles[member]) data.profiles[member] = {};
+        data.profiles[member].birthDate = birthDateInput.value || "";
+        data.profiles[member].height = heightInput.value || "";
+        data.profiles[member].weight = weightInput.value || "";
+        saveData();
+        profileSavedMsg.textContent = "Сохранено";
+        setTimeout(() => { profileSavedMsg.textContent = ""; }, 1500);
+    });
+
+    // Добавление визита
+    visitForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const member = getCurrentMember();
+        if (!member) {
+            alert("Сначала выбери человека.");
+            return;
+        }
+        const date = visitDateInput.value;
+        const doctor = visitDoctorInput.value.trim();
+        const reason = visitReasonInput.value.trim();
+        const notes = visitNotesInput.value.trim();
+        if (!date || !doctor) {
+            alert("Нужны хотя бы дата и врач.");
+            return;
+        }
+        if (!data.visits[member]) data.visits[member] = [];
+        data.visits[member].push({ date, doctor, reason, notes });
+        saveData();
+        visitForm.reset();
+        renderVisits();
+    });
+
+    // Добавление анализа (с фото)
+    testForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const member = getCurrentMember();
+        if (!member) {
+            alert("Сначала выбери человека.");
+            return;
+        }
+        const date = testDateInput.value;
+        const type = testTypeInput.value.trim();
+        const result = testResultInput.value.trim();
+        const notes = testNotesInput.value.trim();
+        if (!date || !type) {
+            alert("Нужны хотя бы дата и тип анализа.");
+            return;
+        }
+
+        let imageData = "";
+        const file = testImageInput.files[0];
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) { // 2 МБ
+                alert("Файл слишком большой (больше 2 МБ). Попробуй сделать скриншот поменьше или сжать фото.");
+                return;
+            }
+            imageData = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error);
+                reader.readAsDataURL(file);
+            }).catch(err => {
+                console.error(err);
+                alert("Не получилось прочитать файл.");
+                return "";
+            });
+            if (!imageData) return;
+        }
+
+        if (!data.tests[member]) data.tests[member] = [];
+        data.tests[member].push({ date, type, result, notes, imageData });
+        saveData();
+        testForm.reset();
+        renderTests();
+    });
+
+    // Добавление болезни
+    illForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const member = getCurrentMember();
+        if (!member) {
+            alert("Сначала выбери человека.");
+            return;
+        }
+        const start = illStartInput.value;
+        const end = illEndInput.value;
+        const name = illNameInput.value.trim();
+        const treat = illTreatInput.value.trim();
+        const notes = illNotesInput.value.trim();
+        if (!start || !name) {
+            alert("Нужны хотя бы дата начала и диагноз.");
+            return;
+        }
+        if (!data.ills[member]) data.ills[member] = [];
+        data.ills[member].push({ start, end, name, treat, notes });
+        saveData();
+        illForm.reset();
+        renderIlls();
+    });
+
+    // Сохранить фото профиля
+    saveMemberPhotoBtn.addEventListener("click", async () => {
+        const member = getCurrentMember();
+        if (!member) {
+            alert("Сначала выбери человека.");
+            return;
+        }
+
+        const file = memberPhotoInput.files[0];
+        if (!file) {
+            alert("Выбери фото.");
+            return;
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            alert("Фото слишком большое (больше 2 МБ). Сожми его или сделай скриншот.");
+            return;
+        }
+
+        const imageData = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(file);
+        });
+
+        if (!data.profilePhotos) data.profilePhotos = {};
+        if (!data.profilePhotoPosition) data.profilePhotoPosition = {};
+
+        data.profilePhotos[member] = imageData;
+        data.profilePhotoPosition[member] = {
+            x: Number(avatarXInput.value) || 50,
+            y: Number(avatarYInput.value) || 50
+        };
+
+        saveData();
+        renderMemberPhoto();
+        alert("Фото сохранено!");
+    });
+
+    // Перетаскивание кадра ползунками
+    avatarXInput.addEventListener("input", () => {
+        const member = getCurrentMember();
+        if (!member || !data.profilePhotos?.[member]) return;
+        const x = Number(avatarXInput.value);
+        const y = Number(avatarYInput.value);
+        if (!data.profilePhotoPosition) data.profilePhotoPosition = {};
+        data.profilePhotoPosition[member] = { x, y };
+        memberAvatar.style.objectPosition = x + "% " + y + "%";
+        saveData();
+    });
+
+    avatarYInput.addEventListener("input", () => {
+        const member = getCurrentMember();
+        if (!member || !data.profilePhotos?.[member]) return;
+        const x = Number(avatarXInput.value);
+        const y = Number(avatarYInput.value);
+        if (!data.profilePhotoPosition) data.profilePhotoPosition = {};
+        data.profilePhotoPosition[member] = { x, y };
+        memberAvatar.style.objectPosition = x + "% " + y + "%";
+        saveData();
+    });
+
+    // Инициализация при загрузке страницы
+    loadData();
+    renderMembers();
+    if (data.members.length > 0) {
+        memberSelect.value = data.members[0];
+    }
+    renderAllForCurrent();
+</script>
+</body>
+</html>
